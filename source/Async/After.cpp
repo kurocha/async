@@ -23,29 +23,29 @@ namespace Async
 	After::~After()
 	{
 		// TODO perhaps do this only if currently waiting?
-		_reactor->changes().emplace_back(
+		_reactor->changes().push_back({
 			reinterpret_cast<uintptr_t>(this),
 			EVFILT_TIMER,
 			EV_DELETE,
 			0,
 			0,
 			nullptr
-		);
+		});
 	}
 	
 	void After::wait()
 	{
 		assert(Fiber::current);
 		
-		_reactor->changes().emplace_back(
+		_reactor->changes().push_back({
 			reinterpret_cast<uintptr_t>(this),
 			EVFILT_TIMER,
 			EV_ADD | EV_ONESHOT,
 			// TODO this may overflow
 			NOTE_USECONDS,
-			static_cast<double>(_duration) * 1000 * 1000,
+			static_cast<intptr_t>(static_cast<double>(_duration) * 1000 * 1000),
 			Fiber::current
-		);
+		});
 		
 		Fiber::current->yield();
 	}

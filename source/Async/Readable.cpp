@@ -18,26 +18,26 @@ namespace Async
 	
 	Readable::Readable(FileDescriptor file_descriptor, Reactor * reactor) : _file_descriptor(file_descriptor), _reactor(reactor)
 	{
-		_reactor->changes().emplace_back(
-			_file_descriptor,
+		_reactor->changes().push_back({
+			static_cast<uintptr_t>(_file_descriptor),
 			EVFILT_WRITE,
 			EV_ADD | EV_CLEAR,
 			0,
 			0,
 			Fiber::current
-		);
+		});
 	}
 	
 	Readable::~Readable()
 	{
-		_reactor->changes().emplace_back(
-			_file_descriptor,
+		_reactor->changes().push_back({
+			static_cast<uintptr_t>(_file_descriptor),
 			EVFILT_WRITE,
 			EV_DELETE,
 			0,
 			0,
 			nullptr
-		);
+		});
 	}
 	
 	void Readable::wait()

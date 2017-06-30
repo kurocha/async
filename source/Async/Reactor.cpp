@@ -8,6 +8,7 @@
 
 #include "Reactor.hpp"
 
+#include <Time/Timeout.hpp>
 #include <Concurrent/Fiber.hpp>
 
 #include <errno.h>
@@ -31,6 +32,20 @@ namespace Async
 	
 	std::size_t Reactor::wait(Interval duration)
 	{
+		Time::Timeout timeout(duration);
+		std::size_t count = 0;
+		
+		timeout.start();
+		
+		while (!timeout.expired()) {
+			count += update(timeout.remaining());
+		}
+		
+		return count;
+	}
+	
+	std::size_t Reactor::update(Interval duration)
+	{
 		auto timeout = duration.as_timespec();
 		
 		// TODO is this slow?
@@ -46,7 +61,8 @@ namespace Async
 		for (auto & event : _events) {
 			auto fiber = reinterpret_cast<Concurrent::Fiber *>(event.udata);
 			
-			fiber->resume();
+			if (fiber != nullptr)
+				fiber->resume();
 		}
 		
 		_events.resize(0);

@@ -42,7 +42,7 @@ namespace Async
 	UnitTest::Suite ReactorTestSuite {
 		"Async::Reactor",
 		
-		{"it can wait for a moment",
+		{"it can wait for duration",
 			[](UnitTest::Examiner & examiner) {
 				Reactor reactor;
 				std::string order;
@@ -59,17 +59,19 @@ namespace Async
 				order += 'A';
 				fiber.resume();
 				order += 'C';
-				reactor.wait(1);
+				reactor.update(1);
 				order += 'E';
-				reactor.wait(1);
+				reactor.update(1);
 				order += 'G';
 				
 				examiner.expect(order) == "ABCDEFG";
 			}
 		},
 		
-		{"it can wait for input/output",
+		{"it can wait for reading",
 			[](UnitTest::Examiner & examiner) {
+				std::string order;
+				
 				Reactor reactor;
 				std::vector<char> buffer(12);
 				
@@ -78,27 +80,120 @@ namespace Async
 				set_non_blocking(ios[0]);
 				set_non_blocking(ios[1]);
 				
+				order += 'A';
+				
 				Fiber reader([&](){
 					Readable event(ios[0], &reactor);
 					
+					order += 'B';
 					while (::read(ios[0], buffer.data(), buffer.size()) == -1 && errno == EWOULDBLOCK) {
+						order += 'C';
 						event.wait();
 					}
+					order += 'F';
 				});
 				
 				reader.resume();
 				
 				Fiber writer([&](){
+					order += 'D';
 					::write(ios[1], "Hello World!", 12);
+					order += 'E';
 				});
 				
 				writer.resume();
 				
 				reactor.wait(1);
+				order += 'G';
 				
 				examiner.expect(std::string(buffer.data(), buffer.size())) == "Hello World!";
+				examiner.expect(order) == "ABCDEFG";
 			}
 		},
+		
+		{"it can wait for writing",
+			[](UnitTest::Examiner & examiner) {
+				std::string order;
+				
+				Reactor reactor;
+				
+				FileDescriptor ios[2];
+				::pipe(ios);
+				set_non_blocking(ios[0]);
+				set_non_blocking(ios[1]);
+				
+				Fiber writer([&](){
+					Writable event(ios[1], &reactor);
+					
+					order += 'B';
+					// Fill up pipe buffer:
+					while (::write(ios[1], "Hello World!", 12) != -1) {}
+					order += 'C';
+					
+					// Wait for the buffer to be drained:
+					if (errno == EWOULDBLOCK) {
+						order += 'D';
+						event.wait();
+						order += 'F';
+					}
+				});
+				
+				order += 'A';
+				writer.resume();
+				
+				Fiber reader([&](){
+					order += 'E';
+					// Be careful of blowing away stack, since the fiber stack can be small:
+					unsigned char buffer[1024*4];
+					
+					// Drain the pipe buffer:
+					while (::read(ios[0], buffer, 1024*4) != -1) {}
+				});
+				
+				reader.resume();
+				reactor.wait(1);
+				order += 'G';
+				
+				examiner.expect(order) == "ABCDEFG";
+			}
+		},
+		
+		{"it can stop after a timeout",
+			[](UnitTest::Examiner & examiner) {
+				Reactor reactor;
+				unsigned count = 0;
 
+				Fiber top("top", [&](){
+					Fiber work("work", [&](){
+						After event(0.1, &reactor);
+
+						while (true) {
+							count += 1;
+							event.wait();
+						}
+					});
+
+					Fiber timeout("timeout", [&](){
+						After event(0.25, &reactor);
+
+						event.wait();
+
+						work.stop();
+					});
+
+					// Schedule the timeout:
+					timeout.resume();
+					work.resume();
+
+					Fiber::current->yield();
+				});
+
+				top.resume();
+
+				reactor.wait(2);
+				
+				examiner.expect(count) == 3;
+			}
+		}
 	};
 }

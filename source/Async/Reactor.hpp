@@ -63,6 +63,7 @@ namespace Async
 		Reactor();
 		virtual ~Reactor();
 		
+		std::size_t update(Interval duration);
 		std::size_t wait(Interval duration);
 		
 		FileDescriptor file_descriptor() const noexcept {return _selector;}
