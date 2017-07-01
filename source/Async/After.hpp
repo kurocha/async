@@ -15,7 +15,7 @@ namespace Async
 	class After
 	{
 	public:
-		After(Interval duration, Reactor * reactor);
+		After(Interval duration, Reactor & reactor);
 		virtual ~After();
 		
 		After(const After &) = delete;
@@ -24,6 +24,6 @@ namespace Async
 		void wait();
 	private:
 		Interval _duration;
-		Reactor * _reactor;
+		Reactor & _reactor;
 	};
 }

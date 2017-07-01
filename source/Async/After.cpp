@@ -16,14 +16,14 @@ namespace Async
 {
 	using namespace Concurrent;
 	
-	After::After(Interval duration, Reactor * reactor) : _duration(duration), _reactor(reactor)
+	After::After(Interval duration, Reactor & reactor) : _duration(duration), _reactor(reactor)
 	{
 	}
 	
 	After::~After()
 	{
 		// TODO perhaps do this only if currently waiting?
-		_reactor->changes().push_back({
+		_reactor.changes().push_back({
 			reinterpret_cast<uintptr_t>(this),
 			EVFILT_TIMER,
 			EV_DELETE,
@@ -37,7 +37,7 @@ namespace Async
 	{
 		assert(Fiber::current);
 		
-		_reactor->changes().push_back({
+		_reactor.changes().push_back({
 			reinterpret_cast<uintptr_t>(this),
 			EVFILT_TIMER,
 			EV_ADD | EV_ONESHOT,

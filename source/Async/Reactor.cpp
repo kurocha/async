@@ -18,16 +18,13 @@
 
 namespace Async
 {
-	Reactor::Reactor()
+	Reactor::Reactor() : _selector(::kqueue())
 	{
-		_selector = ::kqueue();
-		
 		_events.reserve(512);
 	}
 	
 	Reactor::~Reactor()
 	{
-		::close(_selector);
 	}
 	
 	std::size_t Reactor::wait(Interval duration)

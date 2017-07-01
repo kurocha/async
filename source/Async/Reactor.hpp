@@ -29,33 +29,11 @@
 	#error "Unable to determine Async::Monitor implementation."
 #endif
 
-namespace std {
-	template<>
-	struct allocator<struct kevent> {
-		typedef struct kevent value_type;
-		
-		value_type* allocate(size_t n)
-		{
-			return static_cast<value_type*>(::operator new(sizeof(value_type) * n));
-		}
-		
-		void deallocate(value_type* p, size_t n)
-		{
-			return ::operator delete(static_cast<void*>(p));
-		}
-		
-		template<class U, class... Args>
-		void construct(U* p, Args&&... args)
-		{
-			::new(static_cast<void*>(p)) U{std::forward<Args>(args)...};
-		}
-	};
-}
+#include "Descriptor.hpp"
 
 namespace Async
 {
 	using Time::Interval;
-	typedef int FileDescriptor;
 	
 	class Reactor
 	{
@@ -66,10 +44,10 @@ namespace Async
 		std::size_t update(Interval duration);
 		std::size_t wait(Interval duration);
 		
-		FileDescriptor file_descriptor() const noexcept {return _selector;}
+		Descriptor descriptor() const noexcept {return _selector;}
 		std::vector<struct kevent> & changes() noexcept {return _changes;}
 	private:
-		FileDescriptor _selector;
+		Descriptor _selector;
 		
 		std::vector<struct kevent> _changes;
 		std::vector<struct kevent> _events;

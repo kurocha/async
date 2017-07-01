@@ -15,13 +15,13 @@ namespace Async
 	class Readable
 	{
 	public:
-		Readable(FileDescriptor file_descriptor, Reactor * reactor);
+		Readable(Descriptor descriptor, Reactor & reactor);
 		virtual ~Readable();
 		
 		void wait();
 		
 	private:
-		FileDescriptor _file_descriptor;
-		Reactor * _reactor;
+		Descriptor _descriptor;
+		Reactor & _reactor;
 	};
 }

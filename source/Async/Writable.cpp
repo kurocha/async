@@ -16,10 +16,10 @@ namespace Async
 {
 	using namespace Concurrent;
 	
-	Writable::Writable(FileDescriptor file_descriptor, Reactor * reactor) : _file_descriptor(file_descriptor), _reactor(reactor)
+	Writable::Writable(Descriptor descriptor, Reactor & reactor) : _descriptor(descriptor), _reactor(reactor)
 	{
-		_reactor->changes().push_back({
-			static_cast<uintptr_t>(_file_descriptor),
+		_reactor.changes().push_back({
+			static_cast<uintptr_t>(_descriptor),
 			EVFILT_WRITE,
 			EV_ADD | EV_CLEAR,
 			0,
@@ -30,8 +30,8 @@ namespace Async
 	
 	Writable::~Writable()
 	{
-		_reactor->changes().push_back({
-			static_cast<uintptr_t>(_file_descriptor),
+		_reactor.changes().push_back({
+			static_cast<uintptr_t>(_descriptor),
 			EVFILT_WRITE,
 			EV_DELETE,
 			0,

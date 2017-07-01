@@ -16,10 +16,10 @@ namespace Async
 {
 	using namespace Concurrent;
 	
-	Readable::Readable(FileDescriptor file_descriptor, Reactor * reactor) : _file_descriptor(file_descriptor), _reactor(reactor)
+	Readable::Readable(Descriptor descriptor, Reactor & reactor) : _descriptor(descriptor), _reactor(reactor)
 	{
-		_reactor->changes().push_back({
-			static_cast<uintptr_t>(_file_descriptor),
+		_reactor.changes().push_back({
+			static_cast<uintptr_t>(_descriptor),
 			EVFILT_WRITE,
 			EV_ADD | EV_CLEAR,
 			0,
@@ -30,8 +30,8 @@ namespace Async
 	
 	Readable::~Readable()
 	{
-		_reactor->changes().push_back({
-			static_cast<uintptr_t>(_file_descriptor),
+		_reactor.changes().push_back({
+			static_cast<uintptr_t>(_descriptor),
 			EVFILT_WRITE,
 			EV_DELETE,
 			0,
