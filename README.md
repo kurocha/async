@@ -16,8 +16,12 @@ Fiber fiber([&](){
 });
 
 fiber.resume();
-reactor.update(1);
+reactor.update(1); // Run the reactor once and wait at most 1s for events.
 ```
+
+Blocking operations such as read and write can be handled asynchronously.
+
+The preferred method is to run one reactor per thread.
 
 ## License
 
