@@ -1,5 +1,5 @@
 //
-//  Descriptor.hpp
+//  Handle.hpp
 //  File file is part of the "Async" project and released under the MIT License.
 //
 //  Created by Samuel Williams on 1/7/2017.
@@ -30,7 +30,7 @@ namespace Async
 		
 		operator Descriptor() const {return _descriptor;}
 		
-	private:
+	protected:
 		Descriptor _descriptor = -1;
 	};
 }

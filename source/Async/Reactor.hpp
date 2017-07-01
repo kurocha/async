@@ -29,7 +29,7 @@
 	#error "Unable to determine Async::Monitor implementation."
 #endif
 
-#include "Descriptor.hpp"
+#include "Handle.hpp"
 
 namespace Async
 {

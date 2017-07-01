@@ -1,16 +1,17 @@
 //
-//  Descriptor.cpp
+//  Handle.cpp
 //  File file is part of the "Async" project and released under the MIT License.
 //
 //  Created by Samuel Williams on 1/7/2017.
 //  Copyright, 2017, by Samuel Williams. All rights reserved.
 //
 
-#include "Descriptor.hpp"
+#include "Handle.hpp"
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <cassert>
 
 #include <system_error>
 
@@ -56,6 +57,8 @@ namespace Async
 	
 	Handle::~Handle()
 	{
+		assert(_descriptor != -1);
+		
 		auto result = ::close(_descriptor);
 		
 		if (result == -1) {
