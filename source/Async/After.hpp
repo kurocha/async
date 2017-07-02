@@ -22,6 +22,7 @@ namespace Async
 		After & operator=(const After &) = delete;
 		
 		void wait();
+		
 	private:
 		Interval _duration;
 		Reactor & _reactor;

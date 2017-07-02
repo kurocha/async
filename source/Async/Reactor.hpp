@@ -41,11 +41,15 @@ namespace Async
 		Reactor();
 		virtual ~Reactor();
 		
+		// Run the reactor once, waiting for at most the given duration for events to occur.
 		std::size_t update(Interval duration);
+		
+		/// Invoke update multiple times for the given duration.
 		std::size_t wait(Interval duration);
 		
 		Descriptor descriptor() const noexcept {return _selector;}
-		std::vector<struct kevent> & changes() noexcept {return _changes;}
+		
+		void append(const struct kevent & event, bool flush = true);
 	private:
 		Descriptor _selector;
 		

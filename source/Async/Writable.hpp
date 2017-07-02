@@ -18,9 +18,14 @@ namespace Async
 		Writable(Descriptor descriptor, Reactor & reactor);
 		~Writable();
 		
+		Writable(const Writable &) = delete;
+		Writable & operator=(const Writable &) = delete;
+		
 		void wait();
 		
 	private:
+		bool _invoked = false;
+		
 		Descriptor _descriptor;
 		Reactor & _reactor;
 	};

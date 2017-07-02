@@ -18,31 +18,38 @@ namespace Async
 	
 	Writable::Writable(Descriptor descriptor, Reactor & reactor) : _descriptor(descriptor), _reactor(reactor)
 	{
-		_reactor.changes().push_back({
-			static_cast<uintptr_t>(_descriptor),
-			EVFILT_WRITE,
-			EV_ADD | EV_CLEAR,
-			0,
-			0,
-			(void*)Fiber::current
-		});
 	}
 	
 	Writable::~Writable()
 	{
-		_reactor.changes().push_back({
-			static_cast<uintptr_t>(_descriptor),
-			EVFILT_WRITE,
-			EV_DELETE,
-			0,
-			0,
-			nullptr
-		});
+		if (_invoked) {
+			_reactor.append({
+				static_cast<uintptr_t>(_descriptor),
+				EVFILT_WRITE,
+				EV_DELETE,
+				0,
+				0,
+				nullptr
+			});
+		}
 	}
 	
 	void Writable::wait()
 	{
 		assert(Fiber::current);
+		
+		if (!_invoked) {
+			_reactor.append({
+				static_cast<uintptr_t>(_descriptor),
+				EVFILT_WRITE,
+				EV_ADD | EV_CLEAR,
+				0,
+				0,
+				(void*)Fiber::current
+			}, false);
+			
+			_invoked = true;
+		}
 		
 		Fiber::current->yield();
 	}

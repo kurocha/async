@@ -15,6 +15,9 @@
 
 #include <system_error>
 
+#include "Readable.hpp"
+#include "Writable.hpp"
+
 namespace Async
 {
 	void set_non_blocking(Descriptor descriptor, bool value)

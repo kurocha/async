@@ -18,31 +18,38 @@ namespace Async
 	
 	Readable::Readable(Descriptor descriptor, Reactor & reactor) : _descriptor(descriptor), _reactor(reactor)
 	{
-		_reactor.changes().push_back({
-			static_cast<uintptr_t>(_descriptor),
-			EVFILT_WRITE,
-			EV_ADD | EV_CLEAR,
-			0,
-			0,
-			Fiber::current
-		});
 	}
 	
 	Readable::~Readable()
 	{
-		_reactor.changes().push_back({
-			static_cast<uintptr_t>(_descriptor),
-			EVFILT_WRITE,
-			EV_DELETE,
-			0,
-			0,
-			nullptr
-		});
+		if (_invoked) {
+			_reactor.append({
+				static_cast<uintptr_t>(_descriptor),
+				EVFILT_READ,
+				EV_DELETE,
+				0,
+				0,
+				nullptr
+			});
+		}
 	}
 	
 	void Readable::wait()
 	{
 		assert(Fiber::current);
+		
+		if (!_invoked) {
+			_reactor.append({
+				static_cast<uintptr_t>(_descriptor),
+				EVFILT_READ,
+				EV_ADD | EV_CLEAR,
+				0,
+				0,
+				Fiber::current
+			}, false);
+			
+			_invoked = true;
+		}
 		
 		Fiber::current->yield();
 	}

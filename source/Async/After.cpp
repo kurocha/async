@@ -22,22 +22,13 @@ namespace Async
 	
 	After::~After()
 	{
-		// TODO perhaps do this only if currently waiting?
-		_reactor.changes().push_back({
-			reinterpret_cast<uintptr_t>(this),
-			EVFILT_TIMER,
-			EV_DELETE,
-			0,
-			0,
-			nullptr
-		});
 	}
 	
 	void After::wait()
 	{
 		assert(Fiber::current);
 		
-		_reactor.changes().push_back({
+		_reactor.append({
 			reinterpret_cast<uintptr_t>(this),
 			EVFILT_TIMER,
 			EV_ADD | EV_ONESHOT,
@@ -47,6 +38,19 @@ namespace Async
 			Fiber::current
 		});
 		
-		Fiber::current->yield();
+		try {
+			Fiber::current->yield();
+		} catch (...) {
+			_reactor.append({
+				reinterpret_cast<uintptr_t>(this),
+				EVFILT_TIMER,
+				EV_ADD | EV_ONESHOT,
+				0,
+				0,
+				nullptr
+			}, false);
+			
+			throw;
+		}
 	}
 }

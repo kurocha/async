@@ -18,9 +18,14 @@ namespace Async
 		Readable(Descriptor descriptor, Reactor & reactor);
 		virtual ~Readable();
 		
+		Readable(const Readable &) = delete;
+		Readable & operator=(const Readable &) = delete;
+		
 		void wait();
 		
 	private:
+		bool _invoked = false;
+		
 		Descriptor _descriptor;
 		Reactor & _reactor;
 	};

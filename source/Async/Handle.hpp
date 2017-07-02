@@ -14,6 +14,8 @@ namespace Async
 	
 	void set_non_blocking(Descriptor descriptor, bool value = true);
 	
+	class Reactor;
+	
 	// Takes ownership of a descriptor and closes it when it goes out of scope.
 	class Handle
 	{
