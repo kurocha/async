@@ -20,6 +20,8 @@ namespace Async
 	class Handle
 	{
 	public:
+		Handle() {}
+		
 		// Takes ownership of the descriptor.
 		Handle(Descriptor descriptor);
 		
@@ -29,6 +31,9 @@ namespace Async
 		// Dup the descriptor into the handle.
 		Handle(const Handle & other);
 		Handle & operator=(const Handle & other);
+		
+		Handle(Handle && other);
+		Handle & operator=(Handle && other);
 		
 		operator Descriptor() const {return _descriptor;}
 		

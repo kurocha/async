@@ -44,6 +44,8 @@ namespace Async
 	
 	Handle::Handle(const Handle & other) : _descriptor(::dup(other._descriptor))
 	{
+		// std::cerr << "descriptor " << other._descriptor << " was duped to " << _descriptor << std::endl;
+		
 		if (_descriptor == -1)
 			throw std::system_error(errno, std::generic_category(), "dup");
 	}
@@ -58,14 +60,30 @@ namespace Async
 		return *this;
 	}
 	
+	Handle::Handle(Handle && other) : _descriptor(other._descriptor)
+	{
+		other._descriptor = -1;
+	}
+	
+	Handle & Handle::operator=(Handle && other) {
+		if (_descriptor != -1) {
+			::close(_descriptor);
+		}
+		
+		_descriptor = other._descriptor;
+		other._descriptor = -1;
+		
+		return *this;
+	}
+	
 	Handle::~Handle()
 	{
-		assert(_descriptor != -1);
-		
-		auto result = ::close(_descriptor);
-		
-		if (result == -1) {
-			throw std::system_error(errno, std::generic_category(), "close");
+		if (_descriptor != -1) {
+			auto result = ::close(_descriptor);
+			
+			if (result == -1) {
+				throw std::system_error(errno, std::generic_category(), "close");
+			}
 		}
 	}
 }
