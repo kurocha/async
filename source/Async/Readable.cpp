@@ -33,11 +33,7 @@ namespace Async
 				nullptr
 			});
 #elif defined(ASYNC_EPOLL)
-			_reactor.append(EPOLL_CTL_DEL, {
-				{
-					.fd = _descriptor,
-				}
-			});
+			_reactor.append(EPOLL_CTL_DEL, _descriptor, 0, nullptr);
 #endif
 		}
 	}
@@ -57,13 +53,7 @@ namespace Async
 				Fiber::current
 			}, false);
 #elif defined(ASYNC_EPOLL)
-			_reactor.append(EPOLL_CTL_ADD, {
-				.events = EPOLLIN|EPOLLET,
-				.data = {
-					.fd = _descriptor,
-					.data = (void*)Fiber::current
-				}
-			});
+			_reactor.append(EPOLL_CTL_ADD, _descriptor, EPOLLIN|EPOLLET, (void*)Fiber::current);
 #endif
 			
 			_invoked = true;

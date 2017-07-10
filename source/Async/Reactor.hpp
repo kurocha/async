@@ -12,8 +12,6 @@
 	#define ASYNC_EPOLL
 #elif defined(__MACH__)
 	#define ASYNC_KQUEUE
-#else
-	#error "Unable to determine Async::Monitor implementation."
 #endif
 
 #include <vector>
@@ -26,7 +24,7 @@
 	#include <sys/event.h>
 	#include <sys/time.h>
 #else
-	#error "Unable to determine Async::Monitor implementation."
+	#error "Unable to determine Async implementation."
 #endif
 
 #include "Handle.hpp"
@@ -55,7 +53,7 @@ namespace Async
 
 #if defined(ASYNC_EPOLL)
 	public:
-		void append(int operation, const struct epoll_event & event);
+		void append(int operation, Descriptor descriptor, int events, void * data);
 		
 	private:
 		std::vector<struct epoll_event> _events;

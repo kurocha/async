@@ -49,7 +49,7 @@ namespace Async
 	std::size_t Reactor::update(Interval duration)
 	{
 		_events.resize(_events.capacity());
-		auto result = ::epoll_wait(_selector, _events.data(), _events.size(), duration.milliseconds());
+		auto result = ::epoll_wait(_selector, _events.data(), _events.size(), duration.as_milliseconds());
 		
 		if (result == -1) 
 			throw std::system_error(errno, std::generic_category(), "epoll_wait");
@@ -73,9 +73,14 @@ namespace Async
 		return result;
 	}
 
-	void Reactor::append(int operation, const struct epoll_event & event)
+	void Reactor::append(int operation, Descriptor descriptor, int events, void * data)
 	{
-		auto result = ::epoll_ctl(_selector, operation, event.data.fd, const_cast<struct epoll_event *>(&event));
+		struct epoll_event event;
+		event.events = events;
+		event.data.fd = descriptor;
+		event.data.ptr = data;
+		
+		auto result = ::epoll_ctl(_selector, operation, descriptor, &event);
 		
 		if (result == -1)
 			throw std::system_error(errno, std::generic_category(), "epoll_ctl");

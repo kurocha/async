@@ -61,19 +61,13 @@ namespace Async
 		// TODO cache the timer handle:
 		Handle timer_handle = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK|TFD_CLOEXEC);
 		
-		_reactor.append(EPOLL_CTL_ADD, {
-			.events = EPOLLIN|EPOLLET,
-			.data = {
-				.fd = timer_handle,
-				.data = (void*)Fiber::current
-			}
-		});
+		_reactor.append(EPOLL_CTL_ADD, timer_handle, EPOLLIN|EPOLLET, (void*)Fiber::current);
 		
 		struct itimerspec value;
-		value.it_value = _duration;
+		value.it_value = _duration.value();
 		value.it_interval = {0, 0};
 		
-		::timerfd_settime(_timer_handle, 0, &value, nullptr);
+		::timerfd_settime(timer_handle, 0, &value, nullptr);
 		Fiber::current->yield();
 #endif
 	}
