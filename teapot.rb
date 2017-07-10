@@ -5,21 +5,30 @@
 
 teapot_version "1.3"
 
-define_project "Async" do |project|
-	project.add_author "Samuel Williams"
-	project.license = "MIT License"
+# Project Metadata
 
+define_project "async" do |project|
+	project.title = "Async"
+	project.summary = 'A brief one line summary of the project.'
+	
+	project.license = "MIT License"
+	
+	project.add_author 'Samuel Williams', email: 'samuel.williams@oriontransfer.co.nz'
+	
 	project.version = "1.0.0"
 end
 
-define_target "async" do |target|
-	target.build do |environment|
+define_target 'async-library' do |target|
+	target.build do
 		source_root = target.package.path + 'source'
 		
 		copy headers: source_root.glob('Async/**/*.hpp')
 		
 		build static_library: "Async", source_files: source_root.glob('Async/**/*.cpp')
 	end
+	
+	target.depends 'Build/Files'
+	target.depends 'Build/Clang'
 	
 	target.depends :platform
 	target.depends "Language/C++11", private: true
@@ -32,15 +41,17 @@ define_target "async" do |target|
 	target.depends "Build/Clang"
 	
 	target.provides "Library/Async" do
-		append linkflags ->{install_prefix + "lib/libAsync.a"}
+		append linkflags [
+			->{install_prefix + 'lib/libAsync.a'},
+		]
 	end
 end
 
 define_target "async-tests" do |target|
-	target.build do |environment|
+	target.build do |*arguments|
 		test_root = target.package.path + 'test'
 		
-		run tests: "Async", source_files: test_root.glob('Async/**/*.cpp')
+		run tests: 'Async', source_files: test_root.glob('Async/**/*.cpp'), arguments: arguments
 	end
 	
 	target.depends "Language/C++11", private: true
@@ -51,9 +62,12 @@ define_target "async-tests" do |target|
 	target.provides "Test/Async"
 end
 
-define_configuration "test" do |configuration|
+# Configurations
+
+define_configuration "async" do |configuration|
 	configuration[:source] = "http://github.com/kurocha/"
-	
+		
+	# Provides all the build related infrastructure:
 	configuration.require "platforms"
 	configuration.require "build-files"
 	
@@ -61,7 +75,11 @@ define_configuration "test" do |configuration|
 	configuration.require "time"
 	configuration.require "memory"
 	
+	# Provides unit testing infrastructure and generators:
 	configuration.require "unit-test"
 	
-	configuration.require "language-cpp-class"
+	# Provides some useful C++ generators:
+	configuration.require "generate-travis"
+	configuration.require "generate-project"
+	configuration.require "generate-cpp-class"
 end

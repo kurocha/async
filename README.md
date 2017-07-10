@@ -2,6 +2,30 @@
 
 Implements the reactor pattern using fibers.
 
+[![Build Status](https://travis-ci.org/kurocha/async.svg?branch=master)](https://travis-ci.org/kurocha/async)
+
+## Setup
+
+The build tool `teapot` needs to be installed (which requires [Ruby][2]):
+
+	$ gem install teapot
+
+[2]: http://www.ruby-lang.org/en/downloads/
+
+### Install Dependencies
+
+To fetch project dependencies, run the following:
+
+	$ cd async
+	$ teapot fetch
+
+### Validate Behaviour
+
+The project can be checked by running unit tests:
+
+	$ cd async
+	$ teapot Test/Async
+
 ## Usage
 
 ```c++
@@ -22,6 +46,14 @@ reactor.update(1); // Run the reactor once and wait at most 1s for events.
 Blocking operations such as read and write can be handled asynchronously.
 
 The preferred method is to run one reactor per thread.
+
+## Contributing
+
+1. Fork it.
+2. Create your feature branch (`git checkout -b my-new-feature`).
+3. Commit your changes (`git commit -am 'Add some feature'`).
+4. Push to the branch (`git push origin my-new-feature`).
+5. Create new Pull Request.
 
 ## License
 
