@@ -29,7 +29,7 @@ namespace Async
 	class StreamProtocol : virtual public Protocol
 	{
 	public:
-		using Protocol::Protocol;
+		StreamProtocol(Descriptor descriptor, Reactor & reactor);
 		virtual ~StreamProtocol();
 		
 		enum class Status {

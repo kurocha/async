@@ -26,6 +26,10 @@ namespace Async
 	{
 	}
 	
+	StreamProtocol::StreamProtocol(Descriptor descriptor, Reactor & reactor) : Protocol(descriptor, reactor)
+	{
+	}
+	
 	StreamProtocol::~StreamProtocol()
 	{
 	}
