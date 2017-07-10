@@ -9,9 +9,9 @@
 #pragma once
 
 #if defined(__linux__)
-	#define ASYNC_MONITOR_EPOLL
+	#define ASYNC_EPOLL
 #elif defined(__MACH__)
-	#define ASYNC_MONITOR_KQUEUE
+	#define ASYNC_KQUEUE
 #else
 	#error "Unable to determine Async::Monitor implementation."
 #endif
@@ -19,9 +19,9 @@
 #include <vector>
 #include <Time/Interval.hpp>
 
-#if defined(ASYNC_MONITOR_EPOLL)
+#if defined(ASYNC_EPOLL)
 	#include <sys/epoll.h>
-#elif defined(ASYNC_MONITOR_KQUEUE)
+#elif defined(ASYNC_KQUEUE)
 	#include <sys/types.h>
 	#include <sys/event.h>
 	#include <sys/time.h>
@@ -47,13 +47,26 @@ namespace Async
 		/// Invoke update multiple times for the given duration.
 		std::size_t wait(Interval duration);
 		
-		Descriptor descriptor() const noexcept {return _selector;}
+		const Handle & handle() const noexcept {return _selector;}
+		Handle & handle() noexcept {return _selector;}
 		
-		void append(const struct kevent & event, bool flush = true);
 	private:
-		Descriptor _selector;
+		Handle _selector;
+
+#if defined(ASYNC_EPOLL)
+	public:
+		void append(int operation, const struct epoll_event & event);
 		
+	private:
+		std::vector<struct epoll_event> _events;
+#elif defined(ASYNC_KQUEUE)
+	public:
+		void append(const struct kevent & event, bool flush = true);
+		
+	private:
 		std::vector<struct kevent> _changes;
 		std::vector<struct kevent> _events;
+#endif
+;
 	};
 }

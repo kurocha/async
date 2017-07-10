@@ -18,15 +18,6 @@
 
 namespace Async
 {
-	Reactor::Reactor() : _selector(::kqueue())
-	{
-		_events.reserve(512);
-	}
-	
-	Reactor::~Reactor()
-	{
-	}
-	
 	std::size_t Reactor::wait(Interval duration)
 	{
 		Time::Timeout timeout(duration);
@@ -34,11 +25,66 @@ namespace Async
 		
 		timeout.start();
 		
-		while (!timeout.expired()) {
-			count += update(timeout.remaining());
+		while (true) {
+			auto remaining = timeout.remaining();
+			
+			if (remaining < Interval(0)) break;
+			
+			count += update(remaining);
 		}
 		
 		return count;
+	}
+	
+	Reactor::~Reactor()
+	{
+	}
+	
+#if defined(ASYNC_EPOLL)
+	Reactor::Reactor() : _selector(::epoll_create1(EPOLL_CLOEXEC))
+	{
+		_events.reserve(512);
+	}
+	
+	std::size_t Reactor::update(Interval duration)
+	{
+		_events.resize(_events.capacity());
+		auto result = ::epoll_wait(_selector, _events.data(), _events.size(), duration.milliseconds());
+		
+		if (result == -1) 
+			throw std::system_error(errno, std::generic_category(), "epoll_wait");
+		
+		_events.resize(result);
+		
+		for (auto & event : _events) {
+			auto fiber = reinterpret_cast<Concurrent::Fiber *>(event.data.ptr);
+			
+			if (fiber != nullptr)
+				fiber->resume();
+		}
+		
+		_events.resize(0);
+		
+		// If we received the maximum number of events, increase the size of the event buffer.
+		if (result == _events.capacity()) {
+			_events.reserve(_events.capacity() * 2);
+		}
+		
+		return result;
+	}
+
+	void Reactor::append(int operation, const struct epoll_event & event)
+	{
+		auto result = ::epoll_ctl(_selector, operation, event.data.fd, const_cast<struct epoll_event *>(&event));
+		
+		if (result == -1)
+			throw std::system_error(errno, std::generic_category(), "epoll_ctl");
+	}
+	
+#elif defined(ASYNC_KQUEUE)
+	Reactor::Reactor() : _selector(::kqueue())
+	{
+		_events.reserve(512);
 	}
 	
 	static const char * filter_name(int16_t filter) {
@@ -121,4 +167,5 @@ namespace Async
 				throw std::system_error(errno, std::generic_category(), "kqueue");
 		}
 	}
+#endif
 }

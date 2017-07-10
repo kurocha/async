@@ -23,6 +23,7 @@ namespace Async
 	Readable::~Readable()
 	{
 		if (_invoked) {
+#if defined(ASYNC_KQUEUE)
 			_reactor.append({
 				static_cast<uintptr_t>(_descriptor),
 				EVFILT_READ,
@@ -31,6 +32,13 @@ namespace Async
 				0,
 				nullptr
 			});
+#elif defined(ASYNC_EPOLL)
+			_reactor.append(EPOLL_CTL_DEL, {
+				{
+					.fd = _descriptor,
+				}
+			});
+#endif
 		}
 	}
 	
@@ -39,6 +47,7 @@ namespace Async
 		assert(Fiber::current);
 		
 		if (!_invoked) {
+#if defined(ASYNC_KQUEUE)
 			_reactor.append({
 				static_cast<uintptr_t>(_descriptor),
 				EVFILT_READ,
@@ -47,6 +56,15 @@ namespace Async
 				0,
 				Fiber::current
 			}, false);
+#elif defined(ASYNC_EPOLL)
+			_reactor.append(EPOLL_CTL_ADD, {
+				.events = EPOLLIN|EPOLLET,
+				.data = {
+					.fd = _descriptor,
+					.data = (void*)Fiber::current
+				}
+			});
+#endif
 			
 			_invoked = true;
 		}

@@ -12,6 +12,10 @@
 
 #include <cassert>
 
+#if defined(ASYNC_EPOLL)
+#include <sys/timerfd.h>
+#endif
+
 namespace Async
 {
 	using namespace Concurrent;
@@ -27,7 +31,8 @@ namespace Async
 	void After::wait()
 	{
 		assert(Fiber::current);
-		
+
+#if defined(ASYNC_KQUEUE)
 		_reactor.append({
 			reinterpret_cast<uintptr_t>(this),
 			EVFILT_TIMER,
@@ -52,5 +57,24 @@ namespace Async
 			
 			throw;
 		}
+#elif defined(ASYNC_EPOLL)
+		// TODO cache the timer handle:
+		Handle timer_handle = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK|TFD_CLOEXEC);
+		
+		_reactor.append(EPOLL_CTL_ADD, {
+			.events = EPOLLIN|EPOLLET,
+			.data = {
+				.fd = timer_handle,
+				.data = (void*)Fiber::current
+			}
+		});
+		
+		struct itimerspec value;
+		value.it_value = _duration;
+		value.it_interval = {0, 0};
+		
+		::timerfd_settime(_timer_handle, 0, &value, nullptr);
+		Fiber::current->yield();
+#endif
 	}
 }
