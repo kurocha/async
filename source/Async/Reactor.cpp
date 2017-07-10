@@ -66,7 +66,7 @@ namespace Async
 		_events.resize(0);
 		
 		// If we received the maximum number of events, increase the size of the event buffer.
-		if (result == _events.capacity()) {
+		if (std::size_t(result) == _events.capacity()) {
 			_events.reserve(_events.capacity() * 2);
 		}
 		
@@ -146,7 +146,7 @@ namespace Async
 		_events.resize(0);
 		
 		// If we received the maximum number of events, increase the size of the event buffer.
-		if (result == _events.capacity()) {
+		if (std::size_t(result) == _events.capacity()) {
 			_events.reserve(_events.capacity() * 2);
 		}
 		
