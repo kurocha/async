@@ -26,21 +26,25 @@ namespace Async
 		Reactor & _reactor;
 	};
 	
-	class StreamProtocol : virtual public Protocol
+	class StreamProtocol : public Protocol
 	{
 	public:
 		StreamProtocol(Descriptor descriptor, Reactor & reactor);
 		virtual ~StreamProtocol();
 		
+		Byte * read(Byte * begin, const Byte * end, bool partial = true);
+		std::string read(std::size_t size, bool partial = true);
+		
+		void write(const Byte * begin, const Byte * end);
+		void write(const std::string & buffer);
+		
+	protected:
 		enum class Status {
 			OK, WAITING, INTERRUPTED
 		};
 		
-		Status read(Byte *& begin, Byte * end);
-		Status write(const Byte *& begin, const Byte * end);
-		
-		std::string read(std::size_t size, bool partial = true);
-		void write(const std::string & buffer);
+		Status read_partial(Byte *& begin, const Byte * end);
+		Status write_partial(const Byte *& begin, const Byte * end);
 	};
 	
 	// class DatagramProtocol : public Protocol

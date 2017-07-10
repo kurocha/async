@@ -34,7 +34,7 @@ namespace Async
 	{
 	}
 	
-	StreamProtocol::Status StreamProtocol::read(Byte *& begin, Byte * end)
+	StreamProtocol::Status StreamProtocol::read_partial(Byte *& begin, const Byte * end)
 	{
 		auto result = ::read(_descriptor, begin, end - begin);
 		
@@ -49,7 +49,7 @@ namespace Async
 		}
 	}
 	
-	StreamProtocol::Status StreamProtocol::write(const Byte *& begin, const Byte * end)
+	StreamProtocol::Status StreamProtocol::write_partial(const Byte *& begin, const Byte * end)
 	{
 		auto result = ::write(_descriptor, begin, end - begin);
 		
@@ -64,39 +64,54 @@ namespace Async
 		}
 	}
 	
-	std::string StreamProtocol::read(std::size_t size, bool partial)
+	Protocol::Byte * StreamProtocol::read(Byte * begin, const Byte * end, bool partial)
 	{
 		Readable event(_descriptor, _reactor);
 		
-		Byte buffer[size];
-		Byte * mark = buffer;
+		auto mark = begin;
 		
-		while (mark != buffer+size) {
-			auto result = read(mark, buffer+size);
+		while (mark != end) {
+			auto result = read_partial(mark, end);
 			
 			if (result != Status::OK) {
 				event.wait();
-			} else if (partial || mark == buffer+size) {
+			} else if (partial || mark == end) {
 				break;
 			}
 		}
 		
+		return mark;
+	}
+	
+	std::string StreamProtocol::read(std::size_t size, bool partial)
+	{
+		Byte buffer[size];
+		
+		auto mark = read(buffer, buffer+size, partial);
+		
 		return std::string(buffer, mark);
 	}
 	
-	void StreamProtocol::write(const std::string & buffer)
+	void StreamProtocol::write(const Byte * begin, const Byte * end)
 	{
 		Writable event(_descriptor, _reactor);
 		
-		auto mark = reinterpret_cast<const Byte *>(buffer.data());
-		auto end = reinterpret_cast<const Byte *>(buffer.data() + buffer.size());
+		auto mark = begin;
 		
 		while (mark != end) {
-			auto result = write(mark, end);
+			auto result = write_partial(mark, end);
 			
 			if (result != Status::OK) {
 				event.wait();
 			}
 		}
+	}
+	
+	void StreamProtocol::write(const std::string & buffer)
+	{
+		auto begin = reinterpret_cast<const Byte *>(buffer.data());
+		auto end = reinterpret_cast<const Byte *>(buffer.data() + buffer.size());
+		
+		write(begin, end);
 	}
 }
