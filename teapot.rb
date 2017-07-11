@@ -9,7 +9,7 @@ teapot_version "1.3"
 
 define_project "async" do |project|
 	project.title = "Async"
-	project.summary = 'A brief one line summary of the project.'
+	project.summary = 'Implements the reactor pattern using fibers.'
 	
 	project.license = "MIT License"
 	
