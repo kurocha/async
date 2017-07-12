@@ -23,6 +23,7 @@ namespace Async
 			
 			std::size_t size = 0;
 			
+			Result(Status status_, ssize_t size_);
 			Result(Status status_ = OK, std::size_t size_ = 0) : status(status_), size(size_) {}
 			
 			bool operator==(const Status & status_) {return status == status_;}

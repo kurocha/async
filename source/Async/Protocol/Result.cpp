@@ -11,10 +11,18 @@
 #include <system_error>
 #include <errno.h>
 
+#include <cassert>
+
 namespace Async
 {
 	namespace Protocol
 	{
+		Result::Result(Status status_, ssize_t size_) : status(status_)
+		{
+			assert(size_ > 0);
+			size = static_cast<std::size_t>(size_);
+		}
+		
 		Result Result::check(ssize_t result, const char * what)
 		{
 			if (result == -1) {
