@@ -178,17 +178,12 @@ namespace Async
 			
 			auto result = ::readv(descriptor, iov, count);
 			
-			if (result == -1) {
-				if (errno == EWOULDBLOCK || errno == EAGAIN) return Result::WAITING;
-				if (errno == EINTR) return Result::INTERRUPTED;
-				
-				throw std::system_error(errno, std::generic_category(), "readv");
-			} else if (result == 0) {
-				return Result::CLOSED;
-			} else {
+			if (result > 0) {
 				_used += result;
 				
 				return {Result::OK, result};
+			} else {
+				return Result::check(result, "readv");
 			}
 		}
 
@@ -237,17 +232,12 @@ namespace Async
 			
 			auto result = ::writev(descriptor, iov, count);
 			
-			if (result == -1) {
-				if (errno == EWOULDBLOCK || errno == EAGAIN) return Result::WAITING;
-				if (errno == EINTR) return Result::INTERRUPTED;
-				
-				throw std::system_error(errno, std::generic_category(), "writev");
-			} else if (result == 0) {
-				return {Result::CLOSED, result};
-			} else {
+			if (result > 0) {
 				_used -= result;
 				
 				return {Result::OK, result};
+			} else {
+				return Result::check(result, "writev");
 			}
 		}
 		
@@ -256,7 +246,7 @@ namespace Async
 			while (!full()) {
 				auto result = read_from(descriptor);
 				
-				if (result == Result::WAITING) {
+				if (result.is_pending()) {
 					readable.wait();
 				} else {
 					return result;
@@ -271,7 +261,7 @@ namespace Async
 			while (!empty()) {
 				auto result = write_to(descriptor);
 				
-				if (result == Result::WAITING) {
+				if (result.is_pending()) {
 					writable.wait();
 				} else {
 					return result;

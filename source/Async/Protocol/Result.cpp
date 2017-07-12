@@ -34,7 +34,7 @@ namespace Async
 					return Result::FAILED;
 				}
 				
-				throw std::system_error(errno, std::generic_category(), "what");
+				throw std::system_error(errno, std::generic_category(), what);
 			} else if (result == 0) {
 				return Result::CLOSED;
 			} else {

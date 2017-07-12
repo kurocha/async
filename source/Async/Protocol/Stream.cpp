@@ -43,10 +43,10 @@ namespace Async
 					if (partial) return result;
 					
 					mark += result.size;
-				} else if (result == Result::CLOSED) {
-					throw std::runtime_error("could not complete read, remote end shutdown");
-				} else {
+				} else if (result.is_pending()) {
 					event.wait();
+				} else {
+					return result;
 				}
 			}
 			
@@ -62,7 +62,7 @@ namespace Async
 			return std::string(buffer, buffer+result.size);
 		}
 		
-		void Stream::write(const Byte * begin, const Byte * end)
+		Result Stream::write(const Byte * begin, const Byte * end)
 		{
 			Writable event(_descriptor, _reactor);
 			
@@ -73,20 +73,22 @@ namespace Async
 				
 				if (result == Result::OK) {
 					mark += result.size;
-				} else if (result == Result::CLOSED) {
-					throw std::runtime_error("could not complete write, remote end shutdown");
-				} else {
+				} else if (result.is_pending()) {
 					event.wait();
+				} else {
+					return result;
 				}
 			}
+			
+			return Result::OK;
 		}
 		
-		void Stream::write(const std::string & buffer)
+		Result Stream::write(const std::string & buffer)
 		{
 			auto begin = reinterpret_cast<const Byte *>(buffer.data());
 			auto end = reinterpret_cast<const Byte *>(buffer.data() + buffer.size());
 			
-			write(begin, end);
+			return write(begin, end);
 		}
 		
 		Result Stream::read_partial(Byte * begin, const Byte * end)

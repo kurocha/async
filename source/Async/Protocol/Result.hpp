@@ -22,7 +22,7 @@ namespace Async
 				// EAGAIN or EWOULDBLOCK:
 				WAITING = 0b0001,
 				// EINTR:
-				INTERRUPTED = 0b0010,
+				INTERRUPTED = 0b0011,
 				// read/write returned 0
 				CLOSED = 0b0100,
 				// ECONNRESET or EPIPE
@@ -38,6 +38,7 @@ namespace Async
 			bool operator!=(const Status & status_) const noexcept {return status != status_;}
 			
 			bool is_closed() const noexcept {return status & CLOSED;}
+			bool is_pending() const noexcept {return status & WAITING;}
 			
 			static Result check(ssize_t result, const char * what);
 		};

@@ -26,8 +26,8 @@ namespace Async
 			Result read(Byte * begin, const Byte * end, bool partial = true);
 			std::string read(std::size_t size, bool partial = true);
 			
-			void write(const Byte * begin, const Byte * end);
-			void write(const std::string & buffer);
+			Result write(const Byte * begin, const Byte * end);
+			Result write(const std::string & buffer);
 			
 		protected:
 			Result read_partial(Byte * begin, const Byte * end);

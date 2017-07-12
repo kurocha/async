@@ -25,7 +25,7 @@ namespace Async
 					std::string message = "Hello World";
 					
 					for (std::size_t i = 0; i < 1000; i += 1) {
-						examiner.expect(buffer.size()) == 0;
+						examiner.expect(buffer.size()) == 0u;
 						buffer.append((const Byte *)message.data(), message.size());
 						
 						examiner.expect(buffer.size()) == message.size();
