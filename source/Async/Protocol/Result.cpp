@@ -30,6 +30,8 @@ namespace Async
 					return Result::WAITING;
 				} else if (errno == EINTR) {
 					return Result::INTERRUPTED;
+				} else if (errno == EPIPE || errno == ECONNRESET) {
+					return Result::FAILED;
 				}
 				
 				throw std::system_error(errno, std::generic_category(), "what");
