@@ -29,7 +29,7 @@ namespace Async
 			virtual ~Buffer();
 			
 			/// The total data size in the ring buffer of all segments.
-			std::size_t total_size () const;
+			std::size_t total_size() const;
 			
 			/// The start of the first contiguous segment:
 			Byte * data() {return _data + _offset;}
@@ -63,7 +63,7 @@ namespace Async
 			std::size_t append(const Byte * data, std::size_t size);
 			
 			// Whether the ring buffer has one contiguous segment or has wrapped around.
-			bool contiguous() const;
+			bool is_contiguous() const;
 			
 			Result read_from(Descriptor descriptor);
 			Result write_to(Descriptor descriptor);

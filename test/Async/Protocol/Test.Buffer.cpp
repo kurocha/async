@@ -57,20 +57,25 @@ namespace Async
 					
 					examiner.expect(buffer.size()) == 1024u;
 					examiner.expect(buffer.end()) == buffer.top();
+					examiner.expect(buffer.is_contiguous()) == true;
 					
 					buffer.consume(512);
 					examiner.expect(buffer.begin()) == (buffer.bottom() + 512);
 					examiner.expect(buffer.end()) == buffer.top();
 					
 					buffer.read_from(file);
+					examiner.expect(buffer.size()) == 512u;
 					examiner.expect(buffer.begin()) == (buffer.bottom() + 512);
-					examiner.expect(buffer.end()) == (buffer.bottom() + 512);
+					examiner.expect(buffer.end()) == buffer.top();
 					
 					buffer.consume(1000);
 					examiner.expect(buffer.size()) == 24u;
 					
 					buffer.read_from(file);
-					examiner.expect(buffer.size()) == 1024u;
+					examiner.expect(buffer.is_contiguous()) == false;
+					
+					examiner.expect(buffer.size()) == 536u;
+					examiner.expect(buffer.total_size()) == 1024u;
 				}
 			},
 

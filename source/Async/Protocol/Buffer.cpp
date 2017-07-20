@@ -105,7 +105,7 @@ namespace Async
 			}
 		}
 
-		bool Buffer::contiguous() const
+		bool Buffer::is_contiguous() const
 		{
 			// The RHS s the biggest offset which can possibly be contiguous.
 			// Buffer size: 20, size: 8, offset <= 12 (base 0)
@@ -175,6 +175,10 @@ namespace Async
 				iov[1].iov_len = end - _data;
 				count = 2;
 			}
+			
+			// for (std::size_t i = 0; i < count; i += 1) {
+			// 	std::cerr << "iov[" << i << "] " << ((Byte *)iov[i].iov_base - _data) << " length " << iov[i].iov_len << std::endl;
+			// }
 			
 			auto result = ::readv(descriptor, iov, count);
 			
