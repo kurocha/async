@@ -11,6 +11,8 @@
 #include <cstddef>
 #include <sys/types.h>
 
+#include <iosfwd>
+
 namespace Async
 {
 	namespace Protocol
@@ -45,5 +47,7 @@ namespace Async
 			
 			static Result check(ssize_t result, const char * what);
 		};
+		
+		std::ostream & operator<<(std::ostream &, const Result &);
 	}
 }

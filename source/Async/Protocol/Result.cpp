@@ -13,6 +13,8 @@
 
 #include <cassert>
 
+#include <iostream>
+
 namespace Async
 {
 	namespace Protocol
@@ -40,6 +42,24 @@ namespace Async
 			} else {
 				return {Result::OK, result};
 			}
+		}
+		
+		const char * status_name(Result::Status status)
+		{
+			switch (status) {
+				case Result::OK: return "OK";
+				case Result::WAITING: return "WAITING";
+				case Result::INTERRUPTED: return "INTERRUPTED";
+				case Result::CLOSED: return "CLOSED";
+				case Result::FAILED: return "FAILED";
+			}
+			
+			return "UNKNOWN";
+		}
+		
+		std::ostream & operator<<(std::ostream & output, const Result & result)
+		{
+			return output << status_name(result.status) << "+" << result.size;
 		}
 	}
 }
