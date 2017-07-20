@@ -37,6 +37,9 @@ namespace Async
 			bool operator==(const Status & status_) const noexcept {return status == status_;}
 			bool operator!=(const Status & status_) const noexcept {return status != status_;}
 			
+			bool operator==(const Result & other) const noexcept {return status == other.status && size == other.size;}
+			bool operator!=(const Result & other) const noexcept {return status != other.status || size != other.size;}
+			
 			bool is_closed() const noexcept {return status & CLOSED;}
 			bool is_pending() const noexcept {return status & WAITING;}
 			

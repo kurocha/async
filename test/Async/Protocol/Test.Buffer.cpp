@@ -11,6 +11,10 @@
 #include <Async/Pipe.hpp>
 #include <Async/Protocol/Buffer.hpp>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 namespace Async
 {
 	namespace Protocol
@@ -24,13 +28,66 @@ namespace Async
 					
 					std::string message = "Hello World";
 					
-					for (std::size_t i = 0; i < 1000; i += 1) {
-						examiner.expect(buffer.size()) == 0u;
-						buffer.append((const Byte *)message.data(), message.size());
+					examiner.expect(buffer.size()) == 0u;
+					buffer.append((const Byte *)message.data(), message.size());
 						
-						examiner.expect(buffer.size()) == message.size();
-						buffer.consume(message.size());
-					}
+					examiner.expect(buffer.size()) == message.size();
+					buffer.consume(message.size());
+				}
+			},
+			
+			{"it can read data from a file",
+				[](UnitTest::Examiner & examiner) {
+					Handle file = ::open("/dev/zero", O_RDONLY);
+					
+					Buffer buffer(1024);
+					buffer.read_from(file);
+					
+					examiner << "Filled the ring buffer with data from the file." << std::endl;
+					examiner.expect(buffer.size()) == 1024u;
+				}
+			},
+			
+			{"it can read data into non-contiguous buffer",
+				[](UnitTest::Examiner & examiner) {
+					Handle file = ::open("/dev/zero", O_RDONLY);
+					
+					Buffer buffer(1024);
+					buffer.read_from(file);
+					
+					examiner.expect(buffer.size()) == 1024u;
+					examiner.expect(buffer.end()) == buffer.top();
+					
+					buffer.consume(512);
+					examiner.expect(buffer.begin()) == (buffer.bottom() + 512);
+					examiner.expect(buffer.end()) == buffer.top();
+					
+					buffer.read_from(file);
+					examiner.expect(buffer.begin()) == (buffer.bottom() + 512);
+					examiner.expect(buffer.end()) == (buffer.bottom() + 512);
+					
+					buffer.consume(1000);
+					examiner.expect(buffer.size()) == 24u;
+					
+					buffer.read_from(file);
+					examiner.expect(buffer.size()) == 1024u;
+				}
+			},
+
+			
+			{"it can read data from a file in chunks",
+				[](UnitTest::Examiner & examiner) {
+					Handle file = ::open("/dev/zero", O_RDONLY);
+					
+					Buffer buffer(1024);
+					buffer.read_from(file);
+					
+					buffer.consume(100);
+					examiner.expect(buffer.read_from(file).size) == 100u;
+					
+					examiner << "Filled the ring buffer with data from the file." << std::endl;
+					examiner.expect(buffer.size()) == 924u;
+					examiner.expect(buffer.total_size()) == 1024u;
 				}
 			},
 		};

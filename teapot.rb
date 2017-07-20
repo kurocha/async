@@ -64,16 +64,13 @@ end
 
 # Configurations
 
-define_configuration "async" do |configuration|
+define_configuration "development" do |configuration|
 	configuration[:source] = "http://github.com/kurocha/"
+	configuration.import "async"
 		
 	# Provides all the build related infrastructure:
 	configuration.require "platforms"
 	configuration.require "build-files"
-	
-	configuration.require "concurrent"
-	configuration.require "time"
-	configuration.require "memory"
 	
 	# Provides unit testing infrastructure and generators:
 	configuration.require "unit-test"
@@ -82,4 +79,10 @@ define_configuration "async" do |configuration|
 	configuration.require "generate-travis"
 	configuration.require "generate-project"
 	configuration.require "generate-cpp-class"
+end
+
+define_configuration "async" do |configuration|
+	configuration.require "concurrent"
+	configuration.require "time"
+	configuration.require "memory"
 end

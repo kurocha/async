@@ -48,6 +48,13 @@ namespace Async
 			Byte * end() {return data() + size();}
 			const Byte * end() const {return data() + size();}
 			
+			// These are primarily for testing.
+			Byte * bottom() {return _data;}
+			const Byte * bottom() const {return _data;}
+			
+			Byte * top() {return _data + _size;}
+			const Byte * top() const {return _data + _size;}
+			
 			/// Increment the head of the buffer by the given amount.
 			/// throw std::out_of_range if this would increment head past the tail.
 			void consume(std::size_t amount);
