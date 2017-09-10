@@ -53,7 +53,9 @@ namespace Async
 				
 				writer.resume();
 				
-				reactor.wait(1);
+				while (reader || writer)
+					reactor.update(1.0);
+				
 				order += 'G';
 				
 				examiner.expect(std::string(buffer.data(), buffer.size())) == "Hello World!";

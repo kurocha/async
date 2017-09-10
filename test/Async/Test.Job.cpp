@@ -39,7 +39,9 @@ namespace Async
 				});
 				
 				worker.resume();
-				reactor.wait(1.0);
+				
+				while (worker)
+					reactor.update(1.0);
 				
 				examiner.expect(result) == 1337;
 			}
@@ -50,7 +52,6 @@ namespace Async
 				Reactor reactor;
 				Concurrent::Distributor<Job::Reference> distributor;
 				
-				// There is still a issue that is not tested: if the fiber terminates before the job is complete. The job might have references to the fiber stack which no longer exists. When a job goes out of scope, it should always call wait in the destructor?
 				Concurrent::Fiber worker([&]{
 					// If this goes out of scope, the job is cancelled.
 					Job job{reactor, [&](){
@@ -65,7 +66,9 @@ namespace Async
 				});
 				
 				worker.resume();
-				reactor.wait(1.0);
+				
+				while (worker)
+					reactor.update(1.0);
 			}
 		},
 	};

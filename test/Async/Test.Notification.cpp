@@ -47,7 +47,9 @@ namespace Async
 				});
 				
 				worker.resume();
-				reactor.wait(1.0);
+				
+				while (worker)
+					reactor.update(1.0);
 				
 				examiner.expect(order) == "ABCD";
 			}

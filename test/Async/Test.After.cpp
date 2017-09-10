@@ -78,7 +78,7 @@ namespace Async
 
 				top.resume();
 
-				reactor.wait(2);
+				reactor.wait(1.0);
 				
 				examiner.expect(count) == 3;
 			}

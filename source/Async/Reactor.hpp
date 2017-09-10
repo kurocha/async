@@ -65,6 +65,5 @@ namespace Async
 		std::vector<struct kevent> _changes;
 		std::vector<struct kevent> _events;
 #endif
-;
 	};
 }

@@ -58,7 +58,10 @@ namespace Async
 				});
 				
 				reader.resume();
-				reactor.wait(1);
+				
+				while (reader || writer)
+					reactor.update(1.0);
+				
 				order += 'G';
 				
 				examiner.expect(order) == "ABCDEFG";
