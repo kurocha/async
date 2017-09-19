@@ -51,7 +51,11 @@ namespace Async
 		_events.resize(_events.capacity());
 		auto result = ::epoll_wait(_selector, _events.data(), _events.size(), duration.as_milliseconds());
 		
-		if (result == -1) 
+		// If we are interrupted, return gracefully.
+		if (result == -1 && errno == EINTR)
+			return 0;
+		
+		if (result == -1)
 			throw std::system_error(errno, std::generic_category(), "epoll_wait");
 		
 		_events.resize(result);
@@ -127,6 +131,10 @@ namespace Async
 		// for (auto & change : _changes) {
 		// 	std::cerr << "\tchange " << change.ident << " " << filter_name(change.filter) << " " << flags_name(change.flags) << std::endl;
 		// }
+		
+		// If we are interrupted, return gracefully.
+		if (result == -1 && errno == EINTR)
+			return 0;
 		
 		if (result == -1) 
 			throw std::system_error(errno, std::generic_category(), "kqueue");
