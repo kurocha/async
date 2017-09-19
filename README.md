@@ -6,25 +6,28 @@ Implements the reactor pattern using fibers.
 
 ## Setup
 
-The build tool `teapot` needs to be installed (which requires [Ruby][2]):
+The build tool [teapot] needs to be installed (which requires [Ruby]):
 
 	$ gem install teapot
 
-[2]: http://www.ruby-lang.org/en/downloads/
+[teapot]: https://teapot.nz/
+[Ruby]: https://www.ruby-lang.org/en/downloads/
 
-### Install Dependencies
+### Dependencies
 
-To fetch project dependencies, run the following:
+Fetch all the necessary project dependencies:
 
 	$ cd async
 	$ teapot fetch
 
-### Validate Behaviour
+### Tests
 
-The project can be checked by running unit tests:
+Run the tests to confirm basic functionality:
 
 	$ cd async
 	$ teapot Test/Async
+
+N.B. if you run with `variant-sanitize`, you will need clang 5.x+ as previous versions have bugs.
 
 ## Usage
 
