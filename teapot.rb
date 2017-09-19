@@ -18,6 +18,8 @@ define_project "async" do |project|
 	project.version = "1.0.0"
 end
 
+# Build Targets
+
 define_target 'async-library' do |target|
 	target.build do
 		source_root = target.package.path + 'source'
@@ -67,7 +69,7 @@ end
 define_configuration "development" do |configuration|
 	configuration[:source] = "http://github.com/kurocha/"
 	configuration.import "async"
-		
+	
 	# Provides all the build related infrastructure:
 	configuration.require "platforms"
 	configuration.require "build-files"
@@ -79,9 +81,13 @@ define_configuration "development" do |configuration|
 	configuration.require "generate-travis"
 	configuration.require "generate-project"
 	configuration.require "generate-cpp-class"
+	
+	configuration.require 'generate-project'
 end
 
 define_configuration "async" do |configuration|
+	configuration.public!
+	
 	configuration.require "concurrent"
 	configuration.require "time"
 	configuration.require "memory"
