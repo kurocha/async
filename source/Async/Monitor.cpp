@@ -10,7 +10,7 @@
 
 #include <Concurrent/Fiber.hpp>
 
-#include <iostream>
+#include <cassert>
 
 namespace Async
 {
