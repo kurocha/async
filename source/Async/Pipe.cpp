@@ -13,24 +13,35 @@
 
 #include <system_error>
 
+#include <sys/socket.h>
+
+#include <iostream>
+
 namespace Async
 {
-	inline static std::pair<Descriptor, Descriptor> make_pipe()
+	inline static std::pair<Descriptor, Descriptor> make_pipe(bool bidirectional)
 	{
 		Descriptor descriptors[2];
 		
-		auto result = ::pipe(descriptors);
-		
-		if (result == -1)
-			throw std::system_error(errno, std::generic_category(), "pipe(...)");
-		
-		set_non_blocking(descriptors[0], true);
-		set_non_blocking(descriptors[1], true);
+		if (bidirectional) {
+			auto result = ::socketpair(AF_LOCAL, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0, descriptors);
+			
+			if (result == -1)
+				throw std::system_error(errno, std::generic_category(), "socketpair(...)");
+		} else {
+			auto result = ::pipe(descriptors);
+			
+			if (result == -1)
+				throw std::system_error(errno, std::generic_category(), "pipe(...)");
+			
+			set_non_blocking(descriptors[0], true);
+			set_non_blocking(descriptors[1], true);
+		}
 		
 		return std::make_pair(descriptors[0], descriptors[1]);
 	}
 	
-	Pipe::Pipe() : Pipe(make_pipe())
+	Pipe::Pipe(bool bidirectional) : Pipe(make_pipe(bidirectional))
 	{
 	}
 }

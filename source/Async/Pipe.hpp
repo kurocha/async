@@ -16,7 +16,8 @@ namespace Async
 {
 	struct Pipe
 	{
-		Pipe();
+		Pipe(bool bidirectional = false);
+		
 		Pipe(std::pair<Descriptor, Descriptor> descriptors) : input(descriptors.first), output(descriptors.second) {}
 		
 		// Data written to descriptors[1] appears on (i.e., can be read from) descriptors[0].

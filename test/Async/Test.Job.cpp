@@ -16,6 +16,8 @@
 
 namespace Async
 {
+	using namespace UnitTest::Expectations;
+	
 	UnitTest::Suite JobTestSuite {
 		"Async::Job",
 		
@@ -62,7 +64,7 @@ namespace Async
 					
 					examiner.expect([&]{
 						job.wait();
-					}).to_throw<std::logic_error>();
+					}).to(throw_exception<std::logic_error>());
 				});
 				
 				worker.resume();
