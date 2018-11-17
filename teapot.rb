@@ -33,7 +33,7 @@ define_target 'async-library' do |target|
 	target.depends 'Build/Clang'
 	
 	target.depends :platform
-	target.depends "Language/C++11", private: true
+	target.depends "Language/C++14", private: true
 	
 	target.depends "Library/Memory"
 	target.depends "Library/Time"
