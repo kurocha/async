@@ -36,13 +36,13 @@ namespace Async
 			if (result == -1)
 				throw std::system_error(errno, std::generic_category(), "socketpair(...)");
 		} else {
-#if defined(__MACH__)
+#if defined(_GNU_SOURCE)
+			auto result = ::pipe2(descriptors, O_NONBLOCK | O_CLOEXEC);
+#else
 			auto result = ::pipe(descriptors);
-
+			
 			update_flags(descriptors[0], O_NONBLOCK | O_CLOEXEC);
 			update_flags(descriptors[1], O_NONBLOCK | O_CLOEXEC);
-#else
-			auto result = ::pipe(descriptors, O_NONBLOCK | O_CLOEXEC);
 #endif
 			
 			if (result == -1)
