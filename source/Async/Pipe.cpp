@@ -24,18 +24,29 @@ namespace Async
 		Descriptor descriptors[2];
 		
 		if (bidirectional) {
+#if defined(SOCK_NONBLOCK) && defined(SOCK_CLOEXEC)
 			auto result = ::socketpair(AF_LOCAL, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0, descriptors);
+#else
+			auto result = ::socketpair(AF_LOCAL, SOCK_STREAM, 0, descriptors);
+			
+			update_flags(descriptors[0], O_NONBLOCK | O_CLOEXEC);
+			update_flags(descriptors[1], O_NONBLOCK | O_CLOEXEC);
+#endif
 			
 			if (result == -1)
 				throw std::system_error(errno, std::generic_category(), "socketpair(...)");
 		} else {
+#if defined(__MACH__)
 			auto result = ::pipe(descriptors);
+
+			update_flags(descriptors[0], O_NONBLOCK | O_CLOEXEC);
+			update_flags(descriptors[1], O_NONBLOCK | O_CLOEXEC);
+#else
+			auto result = ::pipe(descriptors, O_NONBLOCK | O_CLOEXEC);
+#endif
 			
 			if (result == -1)
 				throw std::system_error(errno, std::generic_category(), "pipe(...)");
-			
-			set_non_blocking(descriptors[0], true);
-			set_non_blocking(descriptors[1], true);
 		}
 		
 		return std::make_pair(descriptors[0], descriptors[1]);

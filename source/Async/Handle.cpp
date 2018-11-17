@@ -20,17 +20,17 @@
 
 namespace Async
 {
-	void set_non_blocking(Descriptor descriptor, bool value)
+	void update_flags(Descriptor descriptor, int flags, bool set)
 	{
-		int flags = ::fcntl(descriptor, F_GETFL, 0);
+		int current_flags = ::fcntl(descriptor, F_GETFL, 0);
 
-		if (flags == -1)
+		if (current_flags == -1)
 			throw std::system_error(errno, std::generic_category(), "fcntl(..., F_GETFL, ...)");
 
-		if (value)
-			flags |= O_NONBLOCK;
+		if (set)
+			flags |= current_flags;
 		else
-			flags &= ~O_NONBLOCK;
+			flags = current_flags & ~flags;
 
 		if (::fcntl(descriptor, F_SETFL, flags) == -1)
 			throw std::system_error(errno, std::generic_category(), "fcntl(..., F_SETFL, ...)");
@@ -76,7 +76,7 @@ namespace Async
 		return *this;
 	}
 	
-	Handle::~Handle()
+	Handle::~Handle() noexcept(false)
 	{
 		if (_descriptor != -1) {
 			auto result = ::close(_descriptor);

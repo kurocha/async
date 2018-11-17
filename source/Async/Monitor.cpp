@@ -39,7 +39,6 @@ namespace Async
 	{
 		assert(Fiber::current);
 		
-		int action = EV_CLEAR | EV_ONESHOT;
 		_added = true;
 		
 		_reactor.append({

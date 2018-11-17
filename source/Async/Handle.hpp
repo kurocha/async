@@ -12,7 +12,7 @@ namespace Async
 {
 	typedef int Descriptor;
 	
-	void set_non_blocking(Descriptor descriptor, bool value = true);
+	void update_flags(Descriptor descriptor, int flags, bool set = true);
 	
 	class Reactor;
 	
@@ -26,7 +26,7 @@ namespace Async
 		Handle(Descriptor descriptor);
 		
 		// Calls close on the descriptor.
-		~Handle();
+		~Handle() noexcept(false);
 		
 		// Dup the descriptor into the handle.
 		Handle(const Handle & other);

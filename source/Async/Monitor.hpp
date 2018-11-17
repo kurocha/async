@@ -18,7 +18,7 @@ namespace Async
 		Monitor(Descriptor descriptor, Reactor & reactor);
 		~Monitor();
 		
-		enum Event : int {
+		enum Event : int16_t {
 			NONE = 0,
 #if defined(ASYNC_KQUEUE)
 			READABLE = EVFILT_READ,
