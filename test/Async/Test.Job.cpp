@@ -8,7 +8,7 @@
 
 #include <UnitTest/UnitTest.hpp>
 
-#include <Concurrent/Distributor.hpp>
+#include <Parallel/Distributor.hpp>
 #include <Concurrent/Fiber.hpp>
 #include <Async/Job.hpp>
 
@@ -24,7 +24,7 @@ namespace Async
 		{"it can wait for result",
 			[](UnitTest::Examiner & examiner) {
 				Reactor reactor;
-				Concurrent::Distributor<Job::Reference> distributor;
+				Parallel::Distributor<Job::Reference> distributor;
 				
 				int result = 0;
 				
@@ -52,7 +52,7 @@ namespace Async
 		{"it can re-throw exceptions",
 			[](UnitTest::Examiner & examiner) {
 				Reactor reactor;
-				Concurrent::Distributor<Job::Reference> distributor;
+				Parallel::Distributor<Job::Reference> distributor;
 				
 				Concurrent::Fiber worker([&]{
 					// If this goes out of scope, the job is cancelled.

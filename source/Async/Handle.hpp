@@ -14,6 +14,11 @@ namespace Async
 	
 	void update_flags(Descriptor descriptor, int flags, bool set = true);
 	
+	// void set_flags(Descriptor descriptor, int flags, bool value = true);
+	// 
+	// void set_non_blocking(Descriptor descriptor, bool value = true);
+	// void set_close_on_exec(Descriptor descriptor, bool value = true);
+	
 	class Reactor;
 	
 	// Takes ownership of a descriptor and closes it when it goes out of scope.
