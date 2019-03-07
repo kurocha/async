@@ -1,90 +1,21 @@
 # Setup the environment:
-sudo: false
-dist: trusty
+dist: xenial
 
-# Setup the compilers:
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libc++-dev
+
 matrix:
   include:
+    - compiler: clang
     - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env: CC=gcc-5 CXX=g++-5 TARGETS="compiler-gcc"
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-      env: CC=gcc-6 CXX=g++-6 TARGETS="compiler-gcc"
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
-          packages:
-            - clang-3.6
-            - libc++-dev
-            - libc++abi-dev
-      env:
-        - CC=clang-3.6 CXX=clang++-3.6
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-          packages:
-            - clang-3.7
-            - libc++-dev
-            - libc++abi-dev
-      env:
-        - CC=clang-3.7 CXX=clang++-3.7
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.8
-          packages:
-            - clang-3.8
-            - libc++-dev
-            - libc++abi-dev
-      env:
-        - CC=clang-3.8 CXX=clang++-3.8
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.9
-          packages:
-            - clang-3.9
-            - libc++-dev
-            - libc++abi-dev
-      env:
-        - CC=clang-3.9 CXX=clang++-3.9
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-4.0
-          packages:
-            - clang-4.0
-            - libc++-dev
-            - libc++abi-dev
-      env:
-        - CC=clang-4.0 CXX=clang++-4.0
+      env: TARGETS="compiler-gcc"
 
-# Install required gems:
 install:
-  - gem install teapot --version "2.0.0-rc3"
+  - gem install teapot
 
 # Run tests:
 script:
