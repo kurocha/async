@@ -1,5 +1,5 @@
 //
-//  Test.Reactor.cpp
+//  Reactor.cpp
 //  This file is part of the "Async" project and released under the MIT License.
 //
 //  Created by Samuel Williams on 30/6/2017.
