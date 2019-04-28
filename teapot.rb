@@ -38,16 +38,16 @@ define_target 'async-library' do |target|
 end
 
 define_target "async-tests" do |target|
+	target.depends 'Library/UnitTest'
 	target.depends "Language/C++14", private: true
 	
-	target.depends "Library/UnitTest"
 	target.depends "Library/Async"
 	target.depends "Library/Parallel"
 	
 	target.provides "Test/Async" do |*arguments|
 		test_root = target.package.path + 'test'
 		
-		run tests: 'Async', source_files: test_root.glob('Async/**/*.cpp'), arguments: arguments
+		run source_files: test_root.glob('Async/**/*.cpp'), arguments: arguments
 	end
 end
 
