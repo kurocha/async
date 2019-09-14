@@ -36,12 +36,6 @@ namespace Async
 			throw std::system_error(errno, std::generic_category(), "fcntl(..., F_SETFL, ...)");
 	}
 	
-	Handle::Handle(Descriptor descriptor) : _descriptor(descriptor)
-	{
-		if (_descriptor == -1)
-			throw std::invalid_argument("invalid descriptor");
-	}
-	
 	Handle::Handle(const Handle & other) : _descriptor(::dup(other._descriptor))
 	{
 		// std::cerr << "descriptor " << other._descriptor << " was duped to " << _descriptor << std::endl;
@@ -66,9 +60,7 @@ namespace Async
 	}
 	
 	Handle & Handle::operator=(Handle && other) {
-		if (_descriptor != -1) {
-			::close(_descriptor);
-		}
+		close();
 		
 		_descriptor = other._descriptor;
 		other._descriptor = -1;
@@ -76,14 +68,22 @@ namespace Async
 		return *this;
 	}
 	
-	Handle::~Handle() noexcept(false)
+	void Handle::close()
 	{
 		if (_descriptor != -1) {
 			auto result = ::close(_descriptor);
+			
+			// Note that the return value should only be used for diagnostics. In particular close() should not be retried after an EINTR since this may cause a reused descriptor from another thread to be closed.
+			_descriptor = -1;
 			
 			if (result == -1) {
 				throw std::system_error(errno, std::generic_category(), "close");
 			}
 		}
+	}
+	
+	Handle::~Handle() noexcept(false)
+	{
+		close();
 	}
 }

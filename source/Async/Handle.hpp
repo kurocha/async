@@ -28,7 +28,7 @@ namespace Async
 		Handle() {}
 		
 		// Takes ownership of the descriptor.
-		Handle(Descriptor descriptor);
+		Handle(Descriptor descriptor) {_descriptor = descriptor;}
 		
 		// Calls close on the descriptor.
 		~Handle() noexcept(false);
@@ -37,10 +37,15 @@ namespace Async
 		Handle(const Handle & other);
 		Handle & operator=(const Handle & other);
 		
+		// Move the descriptor into this handle.
 		Handle(Handle && other);
 		Handle & operator=(Handle && other);
 		
 		operator Descriptor() const {return _descriptor;}
+		
+		void close();
+		
+		explicit operator bool() const {return _descriptor != -1;}
 		
 	protected:
 		Descriptor _descriptor = -1;
