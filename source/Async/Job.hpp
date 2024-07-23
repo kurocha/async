@@ -11,6 +11,7 @@
 #include "Notification.hpp"
 
 #include <functional>
+#include <exception>
 
 namespace Async
 {
